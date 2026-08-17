@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gonzalo Carpio-Rivero</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --egg:      #F7F4EE;
+      --blue:     #1B4F8A;
+      --blue-lt:  #2D6DB5;
+      --blue-dim: #D6E4F5;
+      --ink:      #1A1A2E;
+      --muted:    #6B7185;
+      --rule:     #E2DECE;
+      --nav-h:    56px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--egg);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    #bg-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(247,244,238,0.93);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--rule);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-inner {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 2.8rem;
+    }
+
+    nav a {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+      padding-bottom: 2px;
+    }
+    nav a:hover, nav a.active { color: var(--blue); }
+
+    .nav-underline {
+      position: absolute;
+      bottom: -1px;
+      height: 2px;
+      background: var(--blue);
+      border-radius: 1px;
+      transition: left 0.35s cubic-bezier(.4,0,.2,1), width 0.35s cubic-bezier(.4,0,.2,1), opacity 0.2s;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    main { padding-top: var(--nav-h); position: relative; z-index: 1; }
+
+    /* HERO */
+    #hero {
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+    }
+
+    #hero h1 {
+      font-size: clamp(2.6rem, 6vw, 4rem);
+      font-weight: 700;
+      line-height: 1.05;
+      color: var(--blue);
+      letter-spacing: -1.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .sub-tagline {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 1.8rem;
+    }
+
+    .hero-meta {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.2rem 2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 1.8rem;
+    }
+
+    .hero-meta .m { display: flex; gap: 0.35rem; }
+    .hero-meta .m span { font-weight: 600; color: var(--ink); }
+
+    .hero-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.6rem 1.4rem;
+      font-size: 0.78rem;
+      margin-bottom: 2.4rem;
+    }
+
+    .hero-links a {
+      font-weight: 600;
+      color: var(--blue);
+      text-decoration: none;
+      border-bottom: 1.5px solid var(--blue-dim);
+      padding-bottom: 1px;
+      transition: border-color 0.2s;
+    }
+    .hero-links a:hover { border-color: var(--blue); }
+
+    .hero-bio {
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.85;
+      text-align: center;
+    }
+
+    /* TIMELINE */
+    .tl-wrap {
+      position: relative;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+
+    .tl-line {
+      position: absolute;
+      left: 50%;
+      top: 0; bottom: 0;
+      width: 1.5px;
+      background: var(--rule);
+      transform: translateX(-50%);
+    }
+
+    .tl-heading {
+      position: relative;
+      text-align: center;
+      padding: 3.5rem 0 2.5rem;
+      scroll-margin-top: calc(var(--nav-h) + 1rem);
+    }
+
+    .tl-heading h2 {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--blue);
+      background: var(--egg);
+      padding: 0 1.2rem;
+    }
+
+    .year-stamp {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      margin: 1.2rem 0;
+    }
+
+    .year-stamp .dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--blue);
+      border: 2px solid var(--egg);
+      box-shadow: 0 0 0 1.5px var(--blue);
+      z-index: 2;
+    }
+
+    .year-stamp .yr {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--blue);
+      margin-top: 4px;
+      background: var(--egg);
+      padding: 0 0.4rem;
+    }
+
+    .tl-entry {
+      display: grid;
+      grid-template-columns: 1fr 40px 1fr;
+      gap: 0;
+      margin-bottom: 2.8rem;
+      align-items: stretch;
+    }
+
+    .tl-left { padding-right: 2.2rem; text-align: left; display: flex; flex-direction: column; justify-content: center; }
+    .tl-right { padding-left: 2.2rem; text-align: left; display: flex; flex-direction: column; justify-content: center; }
+
+    .tl-dot-col {
+      display: flex;
+      justify-content: center;
+      padding-top: 15px;
+    }
+
+    .entry-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--egg);
+      border: 2px solid var(--blue);
+      flex-shrink: 0;
+    }
+
+    /* CARD STYLE */
+    .card {
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 1.1rem 1.3rem;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(27, 79, 138, 0.05);
+    }
+
+    .e-role { font-size: 0.86rem; font-weight: 600; color: var(--ink); margin-bottom: 0.1rem; }
+    .e-company { font-size: 0.74rem; font-weight: 600; color: var(--blue); }
+    .e-date { font-size: 0.66rem; font-weight: 500; color: var(--muted); letter-spacing: 0.3px; margin-bottom: 0.5rem; }
+
+    .e-bullets {
+      list-style: none;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .e-bullets li { margin-bottom: 0.28rem; }
+    .e-bullets li::before { content: "· "; }
+
+    /* EQUAL SIZE PHOTO PLACEHOLDER */
+    .tl-photo {
+      width: 100%;
+      height: 100%;
+      min-height: 180px;
+      background: var(--blue-dim);
+      border-radius: 8px;
+      border: 1px dashed #9DBDDE;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.63rem;
+      color: #6B90B8;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      overflow: hidden;
+    }
+    .tl-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    /* PROJECT SPECIFIC */
+    .proj-name { font-size: 0.86rem; font-weight: 600; color: var(--ink); margin-bottom: 0.1rem; }
+    .proj-link { font-size: 0.7rem; font-weight: 600; color: var(--blue); text-decoration: none; border-bottom: 1px solid var(--blue-dim); }
+    .proj-desc { font-size: 0.75rem; color: var(--muted); margin: 0.4rem 0 0.7rem; line-height: 1.6; }
+    .tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .tag { font-size: 0.59rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; padding: 0.16rem 0.5rem; background: var(--blue-dim); color: var(--blue); border-radius: 3px; }
+
+    /* INTERESTS */
+    .int-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+    .int-item { padding: 0.8rem 0.9rem; border-left: 2px solid var(--blue); background: #fff; }
+    .int-title { font-size: 0.78rem; font-weight: 600; color: var(--ink); margin-bottom: 0.1rem; }
+    .int-desc { font-size: 0.7rem; color: var(--muted); line-height: 1.5; }
+
+    /* SKILLS */
+    .sk-block { margin-bottom: 1.1rem; }
+    .sk-block:last-child { margin-bottom: 0; }
+    .sk-block h4 { font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 0.55rem; }
+    .sk-list { display: flex; flex-wrap: wrap; gap: 0.38rem; }
+    .sk { font-size: 0.71rem; font-weight: 500; padding: 0.2rem 0.58rem; border: 1px solid var(--rule); border-radius: 4px; color: var(--ink); background: #fff; }
+
+    /* DAY IN LIFE */
+    .day-item { display: flex; gap: 0.7rem; align-items: flex-start; }
+    .day-time { font-size: 0.63rem; font-weight: 700; color: var(--blue); min-width: 52px; padding-top: 2px; letter-spacing: 0.5px; white-space: nowrap; }
+    .day-text { font-size: 0.74rem; color: var(--muted); line-height: 1.5; }
+
+    /* CONTACT */
+    #contact {
+      text-align: center;
+      padding: 5rem 2rem 4rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    #contact h2 { font-size: 1.9rem; font-weight: 700; color: var(--blue); margin-bottom: 0.4rem; }
+    #contact p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.8rem; }
+
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .contact-links a {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--blue);
+      text-decoration: none;
+      border-bottom: 1.5px solid var(--blue-dim);
+    }
+    .contact-links a:hover { border-color: var(--blue); }
+
+    .btn-row {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.68rem 1.8rem;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .btn-solid { background: var(--blue); color: #fff; }
+    .btn-solid:hover { background: var(--blue-lt); }
+
+    .btn-outline { background: transparent; color: var(--blue); border: 1.5px solid var(--blue); }
+    .btn-outline:hover { background: var(--blue); color: #fff; }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.68rem;
+      color: var(--muted);
+      border-top: 1px solid var(--rule);
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 640px) {
+      .tl-entry { grid-template-columns: 20px 1fr; }
+      .tl-left { display: none; }
+      .tl-right { padding-left: 1rem; }
+      .tl-line { left: 20px; }
+      .int-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+<nav>
+  <div class="nav-inner" id="navInner">
+    <a href="#experience" data-section="experience">Experience</a>
+    <a href="#projects" data-section="projects">Projects</a>
+    <a href="#about" data-section="about">About</a>
+    <a href="#skills" data-section="skills">Skills</a>
+    <div class="nav-underline" id="navUnderline"></div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section id="hero">
+    <h1>Gonzalo<br>Carpio-Rivero</h1>
+    <p class="tagline">Industrial Engineering · Finance · Political Science</p>
+    <p class="sub-tagline">Purdue University · Rising Junior · GPA 3.49 · West Lafayette, IN</p>
+
+    <div class="hero-meta">
+      <div class="m">Born in <span>Italy</span></div>
+      <div class="m">Raised in <span>Lima, Peru</span></div>
+      <div class="m">Citizenship <span>Italian · Peruvian</span></div>
+      <div class="m">Phone <span>+1 (765) 543-7383</span></div>
+    </div>
+
+    <div class="hero-links">
+      <a href="mailto:gcarpior@purdue.edu">gcarpior@purdue.edu</a>
+      <a href="https://www.linkedin.com/in/gonzalo-carpio-rivero" target="_blank" rel="noopener noreferrer">↗ LinkedIn</a>
+      <a href="https://github.com/gcarpior" target="_blank" rel="noopener noreferrer">↗ GitHub</a>
+      <a href="https://thesuppliesmap.org" target="_blank" rel="noopener noreferrer">↗ TheSuppliesMap</a>
+    </div>
+
+    <p class="hero-bio">
+      Italian-Peruvian engineer with a compulsion for building things from scratch. I study Industrial Engineering and Finance at Purdue, spend my summers trading precious metals in Lima, and ship full-stack products in between. I'm drawn to the intersection of physical commodities, geopolitics, and data — and I think the most interesting problems live where markets meet the real world. Outside of work I cook Peruvian food, read about Latin American history, and make my first options trade at 15 feel like a reasonable origin story.
+    </p>
+  </section>
+
+  <!-- TIMELINE -->
+  <div class="tl-wrap">
+    <div class="tl-line"></div>
+
+    <!-- EXPERIENCE -->
+    <div class="tl-heading" id="experience"><h2>Work Experience</h2></div>
+
+    <div class="year-stamp"><div class="dot"></div><div class="yr">2026</div></div>
+
+    <!-- Hochschild -->
+    <div class="tl-entry">
+      <div class="tl-left">
+        <div class="tl-photo">+ Add photo</div>
+      </div>
+      <div class="tl-dot-col"><div class="entry-dot"></div></div>
+      <div class="tl-right">
+        <div class="card">
+          <div class="e-role">Commercial Analyst Intern</div>
+          <div class="e-company">Hochschild Mining PLC — Lima, Peru</div>
+          <div class="e-date">May 2026 – Aug 2026</div>
+          <ul class="e-bullets">
+            <li>Mediated 4 commercial disputes with international commodity buyers (Trafigura, Aurubis, Asahi, Ocean Partners), resolving valuation disagreements within 2–3 days on contracts worth $10M+ in metal content</li>
+            <li>Tracked financial exposure across 9+ active export shipments across 3 operating units — monitored gaps between preliminary invoices and final LBMA market-price settlements</li>
+            <li>Produced 4 editions of a weekly market intelligence report for VP-level leadership, synthesizing global macro events, commodity price trends, and forward-looking gold & silver price analysis</li>
+            <li>Engineered a Power BI dashboard across INM, MSCC, and MSCD units covering inventory, receivables, and costs — saved weeks of manual data gathering and gave leadership real-time commercial visibility</li>
+            <li>Handled KYC/compliance work for counterparties including Philoro, ALS, and AHK; managed SAP purchase order logistics across the full shipment lifecycle</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="year-stamp"><div class="dot"></div><div class="yr">2025</div></div>
+
+    <!-- Teaching Assistant -->
+    <div class="tl-entry">
+      <div class="tl-left">
+        <div class="card">
+          <div class="e-role">Teaching Assistant</div>
+          <div class="e-company">Engineering In the World of AI — Purdue University</div>
+          <div class="e-date">Aug 2025 – May 2026 · West Lafayette, IN</div>
+          <ul class="e-bullets">
+            <li>Directed curriculum transition to integrate AI research, structuring coursework for 2026–27 incoming freshmen</li>
+            <li>Analyzed student performance using Power BI and prompt engineering across 25 data visualizations — kept absences at 5%</li>
+            <li>Developed 12+ AI case studies with Purdue AI researchers; coordinated 3 researcher guest presentations</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-dot-col"><div class="entry-dot"></div></div>
+      <div class="tl-right">
+        <div class="tl-photo">+ Add photo</div>
+      </div>
+    </div>
+
+    <!-- Program Coordinator -->
+    <div class="tl-entry">
+      <div class="tl-left">
+        <div class="tl-photo">+ Add photo</div>
+      </div>
+      <div class="tl-dot-col"><div class="entry-dot"></div></div>
+      <div class="tl-right">
+        <div class="card">
+          <div class="e-role">Program Coordinator Intern</div>
+          <div class="e-company">Purdue Summer Conferences</div>
+          <div class="e-date">Feb 2025 – Aug 2025 · West Lafayette, IN</div>
+          <ul class="e-bullets">
+            <li>Supervised logistics, billing, and audits for 700 summer conference attendees — 4.4/5 customer satisfaction</li>
+            <li>Optimized billing reporting with AI tools including Zapier, accelerating accounts payable delivery to clients by 22%</li>
+            <li>Monitored geographic validity of 500+ meal and housing cards using a live compliance tracker that flagged discrepancies in real time</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resident Assistant -->
+    <div class="tl-entry">
+      <div class="tl-left">
+        <div class="card">
+          <div class="e-role">Resident Assistant</div>
+          <div class="e-company">Purdue University Housing</div>
+          <div class="e-date">2025 – Present · West Lafayette, IN</div>
+          <ul class="e-bullets">
+            <li>Manage a floor of undergraduate students — mentorship, conflict resolution, and community programming</li>
+            <li>On-call crisis response and residence hall policy enforcement</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-dot-col"><div class="entry-dot"></div></div>
+      <div class="tl-right">
+        <div class="tl-photo">+ Add photo</div>
+      </div>
+    </div>
+
+    <div class="year-stamp"><div class="dot"></div><div class="yr">2023</div></div>
+
+    <!-- CRC -->
+    <div class="tl-entry">
+      <div class="tl-left">
+        <div class="tl-photo">+ Add photo</div>
+      </div>
+      <div class="tl-dot-col"><div class="entry-dot"></div></div>
+      <div class="tl-right">
+        <div class="card">
+          <div class="e-role">Tech Intern</div>
+          <div class="e-company">CRC Strategic Management Consulting — Lima, Peru</div>
+          <div class="e-date">Dec 2023 – Jul 2024</div>
+          <ul class="e-bullets">
+            <li>Process mapping and root-cause analysis for 3 client supply chains — 18% reduction in operational costs across distribution workflows</li>
+            <li>Designed a ChatBot using GitHub Copilot and PyTorch, reducing complaint ticket volume by 30%</li>
+            <li>Automated inventory management with openpyxl and SQL — buffer stock integration reduced delivery wait times by 80%</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="tl-heading" id="projects"><h2>Projects & Leadership</h2></div>
+
+    <div class="year-stamp"><div class="dot"></div><div class="yr">2024 – 26</div></div>
+
+    <div class="tl-entry">
+      <div class="tl-left">
+        <div class="tl-photo">+ Add screenshot</div>
+      </div>
+      <div class="tl-dot-col"><div class="entry-dot"></div></div>
+      <div class="tl-right">
+        <div class="card">
+          <div class="proj-name">TheSuppliesMap — Founder</div>
+          <a href="https://thesuppliesmap.org" class="proj-link" target="_blank" rel="noopener noreferrer">↗ thesuppliesmap.org</a>
+          <p class="proj-desc">Country risk and supply chain intelligence platform scoring 192 countries across 20+ weighted metrics. Built using agentic AI coding workflows across Python, D3.js, Three.js, and AWS. Adopted as a reference tool in graduate-level supply chain coursework at Universidad del Pacífico. 150+ monthly active users across procurement and risk analysis contexts.</p>
+          <div class="tags">
+            <span class="tag">Python</span>
+            <span class="tag">Flask</span>
+            <span class="tag">D3.js</span>
+            <span class="tag">Three.js</span>
+            <span class="tag">AWS EC2</span>
+            <span class="tag">Anthropic API</span>
+            <span class="tag">Waitress</span>
+            <span class="tag">Nginx</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-entry">
+      <div class="tl-left">
+        <div class="card">
+          <div class="proj-name">Director of Alumni Relations — SHPE Purdue</div>
+          <p class="proj-desc">Lead alumni engagement strategy for the Society of Hispanic Professional Engineers chapter at Purdue. Building mentorship pipelines between current students and industry professionals in engineering and tech.</p>
+          <div class="tags">
+            <span class="tag">Leadership</span>
+            <span class="tag">SHPE</span>
+            <span class="tag">Alumni Relations</span>
+          </div>
+        </div>
+      </div>
+      <div class="tl-dot-col"><div class="entry-dot"></div></div>
+      <div class="tl-right">
+        <div class="tl-photo">+ Add photo</div>
+      </div>
+    </div>
+
+    <!-- ABOUT ME -->
+    <div class="tl-heading" id="about"><h2>About Me</h2></div>
+
+    <!-- Row 1: Personal Bio & About Photo -->
+    <div class="tl-entry">
+      <div class="tl-left">
+        <div class="card">
+          <div style="font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 0.6rem;">Who I am</div>
+          <p style="font-size: 0.76rem; color: var(--muted); line-height: 1.75; margin-bottom: 0.7rem;">Builder by instinct, trader by aspiration. I'm drawn to problems that sit at the intersection of markets, data, and geopolitics — the kind where the answer isn't on Google and the stakes are real. I work fast, think structurally, and I'm not shy about having opinions.</p>
+          <p style="font-size: 0.76rem; color: var(--muted); line-height: 1.75; margin-bottom: 0.7rem;">I made my first options trade at 15 on Mercado Libre and have been thinking about markets ever since. I identify as entrepreneurial — not in the buzzword sense, but in the sense that I default to building something when I see a gap.</p>
+          <p style="font-size: 0.76rem; color: var(--muted); line-height: 1.75;">Dual Italian-Peruvian. Born in Italy, grew up in Lima. That background shapes how I see trade, geopolitics, and the places most people overlook on a map.</p>
+        </div>
+      </div>
+      <div class="tl-dot-col"><div class="entry-dot"></div></div>
+      <div class="tl-right">
+        <div class="tl-photo">+ Add About photo</div>
+      </div>
+    </div>
+
+    <!-- Row 2: Hobbies & A Day in My Life -->
+    <div class="tl-entry">
+      <div class="tl-left">
+        <div class="card">
+          <div style="font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 0.6rem;">Hobbies</div>
+          <div class="int-grid">
+            <div class="int-item">
+              <div class="int-title">Cooking</div>
+              <div class="int-desc">Peruvian food — ceviche with lenguado, specifically. Non-negotiable.</div>
+            </div>
+            <div class="int-item">
+              <div class="int-title">Markets</div>
+              <div class="int-desc">Tracking gold & silver, reading macro, building probability frameworks for real-world outcomes.</div>
+            </div>
+            <div class="int-item">
+              <div class="int-title">Latin American History</div>
+              <div class="int-desc">Politics, economics, the messy overlap between the two — particularly Peru and the Andes.</div>
+            </div>
+            <div class="int-item">
+              <div class="int-title">Building</div>
+              <div class="int-desc">Weekend projects that usually end up in production. TheSuppliesMap started as one of them.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tl-dot-col"><div class="entry-dot"></div></div>
+      <div class="tl-right">
+        <div class="card">
+          <div style="font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 0.8rem;">A day in my life</div>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div class="day-item">
+              <div class="day-time">6:30 AM</div>
+              <div class="day-text">Up before the floor wakes up. Check gold and silver spot prices before anything else.</div>
+            </div>
+            <div class="day-item">
+              <div class="day-time">7:30 AM</div>
+              <div class="day-text">Classes — IE coursework, or running through financial engineering problem sets.</div>
+            </div>
+            <div class="day-item">
+              <div class="day-time">12:00 PM</div>
+              <div class="day-text">Lunch, usually something I made myself. Easier to think when you've eaten well.</div>
+            </div>
+            <div class="day-item">
+              <div class="day-time">2:00 PM</div>
+              <div class="day-text">Work block — whether that's networking calls, shipping code, or writing market analysis.</div>
+            </div>
+            <div class="day-item">
+              <div class="day-time">5:00 PM</div>
+              <div class="day-text">RA duties or SHPE work — community stuff, student check-ins, planning.</div>
+            </div>
+            <div class="day-item">
+              <div class="day-time">8:00 PM</div>
+              <div class="day-text">Deep work. Best hours for building — TheSuppliesMap got most of its features here.</div>
+            </div>
+            <div class="day-item">
+              <div class="day-time">11:00 PM</div>
+              <div class="day-text">Read — something about LatAm politics, a macro report, or just whatever's interesting that week.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="tl-heading" id="skills"><h2>Skills</h2></div>
+
+    <div class="tl-entry">
+      <div class="tl-left">
+        <div class="card">
+          <div class="sk-block">
+            <h4>Coding</h4>
+            <div class="sk-list">
+              <span class="sk">Python (Advanced)</span>
+              <span class="sk">JavaScript (Advanced)</span>
+              <span class="sk">SQL (Advanced)</span>
+              <span class="sk">Flask</span>
+              <span class="sk">D3.js</span>
+              <span class="sk">Three.js</span>
+            </div>
+          </div>
+          <div class="sk-block" style="margin-top: 1rem;">
+            <h4>Software</h4>
+            <div class="sk-list">
+              <span class="sk">Power BI</span>
+              <span class="sk">SAP</span>
+              <span class="sk">Excel</span>
+              <span class="sk">AutoCAD</span>
+              <span class="sk">Blender</span>
+              <span class="sk">AWS EC2</span>
+              <span class="sk">Git</span>
+              <span class="sk">Nginx</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tl-dot-col"><div class="entry-dot"></div></div>
+      <div class="tl-right">
+        <div class="card">
+          <div class="sk-block">
+            <h4>Languages</h4>
+            <div class="sk-list">
+              <span class="sk">Spanish (Native)</span>
+              <span class="sk">English (Native)</span>
+              <span class="sk">Italian (Beginner)</span>
+            </div>
+          </div>
+          <div class="sk-block" style="margin-top: 1rem;">
+            <h4>Domain</h4>
+            <div class="sk-list">
+              <span class="sk">Precious Metals Trading</span>
+              <span class="sk">Mark-to-Market Settlement</span>
+              <span class="sk">Assay Exchange & Arbitration</span>
+              <span class="sk">Supply Chain Analysis</span>
+              <span class="sk">Financial Modeling</span>
+              <span class="sk">Commodity Markets</span>
+            </div>
+          </div>
+          <div class="sk-block" style="margin-top: 1rem;">
+            <h4>Coursework</h4>
+            <div class="sk-list">
+              <span class="sk">Thermodynamics</span>
+              <span class="sk">Financial Engineering</span>
+              <span class="sk">Probability & Statistics</span>
+              <span class="sk">Intro to Computer Science</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end tl-wrap -->
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <h2>Let's talk.</h2>
+    <p>Open to commodity trading internships and interesting conversations about markets, geopolitics, or products.</p>
+    <div class="contact-links">
+      <a href="mailto:gcarpior@purdue.edu">gcarpior@purdue.edu</a>
+      <a href="https://www.linkedin.com/in/gonzalo-carpio-rivero" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://github.com/gcarpior" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://thesuppliesmap.org" target="_blank" rel="noopener noreferrer">TheSuppliesMap</a>
+    </div>
+    <div class="btn-row">
+      <a href="resume.pdf" download="Gonzalo_Carpio_Rivero_Resume.pdf" class="btn btn-solid">Download Resume ↓</a>
+      <a href="https://www.linkedin.com/in/gonzalo-carpio-rivero" target="_blank" rel="noopener noreferrer" class="btn btn-outline">Connect on LinkedIn ↗</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>© 2026 Gonzalo Carpio-Rivero · Built from scratch</footer>
+
+<script>
+  /* NAV */
+  const navLinks = document.querySelectorAll('#navInner a');
+  const underline = document.getElementById('navUnderline');
+  const navInner  = document.getElementById('navInner');
+
+  function moveUnderline(el) {
+    if (!el) { underline.style.opacity = '0'; return; }
+    const nr = navInner.getBoundingClientRect();
+    const er = el.getBoundingClientRect();
+    underline.style.opacity = '1';
+    underline.style.left  = (er.left - nr.left) + 'px';
+    underline.style.width = er.width + 'px';
+  }
+
+  function getActive() {
+    const y = window.scrollY + 120;
+    const ids = ['experience','projects','about','skills'];
+    let cur = null;
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top + window.scrollY <= y) cur = id;
+    }
+    return cur;
+  }
+
+  function updateNav() {
+    const active = getActive();
+    let activeEl = null;
+    navLinks.forEach(a => {
+      const on = a.dataset.section === active;
+      a.classList.toggle('active', on);
+      if (on) {
+        activeEl = a;
+        a.setAttribute('aria-current', 'true');
+      } else {
+        a.removeAttribute('aria-current');
+      }
+    });
+    moveUnderline(activeEl);
+  }
+
+  window.addEventListener('scroll', updateNav, { passive: true });
+  window.addEventListener('resize', updateNav);
+  document.fonts.ready.then(updateNav);
+  setTimeout(updateNav, 200);
+
+  /* BACKGROUND CANVAS */
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles;
+  let resizeTimeout;
+
+  function resize() { 
+    const dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth; 
+    H = window.innerHeight; 
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.scale(dpr, dpr);
+  }
+
+  function initP() {
+    particles = Array.from({ length: 26 }, () => ({
+      x: Math.random() * W, 
+      y: Math.random() * H,
+      r: 1.4 + Math.random() * 2,
+      vx: (Math.random() - 0.5) * 0.22,
+      vy: (Math.random() - 0.5) * 0.22,
+      alpha: 0.1 + Math.random() * 0.15
+    }));
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if (d < 175) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(27,79,138,${(1 - d/175) * 0.06})`;
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+    for (const p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(27,79,138,${p.alpha})`;
+      ctx.fill();
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < -20) p.x = W + 20;
+      if (p.x > W + 20) p.x = -20;
+      if (p.y < -20) p.y = H + 20;
+      if (p.y > H + 20) p.y = -20;
+    }
+    requestAnimationFrame(draw);
+  }
+
+  resize(); initP(); draw();
+  window.addEventListener('resize', () => { 
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      resize(); 
+      initP();
+    }, 100);
+  });
+</script>
+
+</body>
+</html>
