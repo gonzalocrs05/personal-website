@@ -309,17 +309,23 @@
       max-height: 100%;
       width: auto;
       height: auto;
-      object-fit: contain; /* Keeps full graphic visible without cropping or stretching */
+      object-fit: contain;
       display: block;
       margin: 0 auto;
     }
 
+    .tl-photo.photo-card {
+      padding: 0 !important; /* Removes inner border spacing */
+    }
+
     /* Headshot / Photo Exception (Fills container completely) */
     .tl-photo img.fill-photo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      padding: 0;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
+      object-fit: cover !important; /* Crops cleanly to fill the full card */
+      border-radius: 8px;
     }
 
     /* PROJECT SPECIFIC */
@@ -475,7 +481,9 @@
     <!-- Hochschild -->
     <div class="tl-entry">
       <div class="tl-left">
-        <div class="tl-photo> <img src="hoc.png" alt="hoc"> </div>
+        <div class="tl-photo bg-black">
+          <img src="hoc.png" alt="Hochschild Mining PLC">
+        </div>
       </div>
       <div class="tl-dot-col"><div class="entry-dot"></div></div>
       <div class="tl-right">
@@ -512,14 +520,18 @@
       </div>
       <div class="tl-dot-col"><div class="entry-dot"></div></div>
       <div class="tl-right">
-        <div class="tl-photo"> <img src="ta.png"> </div>
+        <div class="tl-photo">
+          <img src="ta.png" alt="Purdue College of Engineering">
+        </div>
       </div>
     </div>
 
     <!-- Program Coordinator -->
     <div class="tl-entry">
       <div class="tl-left">
-        <div class="tl-photo"><img src="ra.png"></div>
+        <div class="tl-photo bg-black">
+          <img src="ra.png" alt="Purdue University Residences">
+        </div>
       </div>
       <div class="tl-dot-col"><div class="entry-dot"></div></div>
       <div class="tl-right">
@@ -551,7 +563,9 @@
       </div>
       <div class="tl-dot-col"><div class="entry-dot"></div></div>
       <div class="tl-right">
-        <div class="tl-photo"> <img src="ra.png"> </div>
+        <div class="tl-photo bg-black">
+          <img src="ra.png" alt="Purdue Housing">
+        </div>
       </div>
     </div>
 
@@ -560,7 +574,9 @@
     <!-- CRC -->
     <div class="tl-entry">
       <div class="tl-left">
-        <div class="tl-photo"> <img src="crc.png"> </div>
+        <div class="tl-photo bg-crc">
+          <img src="crc.png" alt="CRC Strategic Management Consulting">
+        </div>
       </div>
       <div class="tl-dot-col"><div class="entry-dot"></div></div>
       <div class="tl-right">
@@ -584,7 +600,9 @@
 
     <div class="tl-entry">
       <div class="tl-left">
-        <div class="tl-photo"> <img src="thesuppliesmap.png"> </div>
+        <div class="tl-photo photo-card">
+          <img src="thesuppliesmap.png" class="fill-photo" alt="TheSuppliesMap Platform">
+        </div>
       </div>
       <div class="tl-dot-col"><div class="entry-dot"></div></div>
       <div class="tl-right">
@@ -620,7 +638,9 @@
       </div>
       <div class="tl-dot-col"><div class="entry-dot"></div></div>
       <div class="tl-right">
-        <div class="tl-photo"> <img src="shpe.png"> </div>
+        <div class="tl-photo">
+          <img src="shpe.png" alt="SHPE Purdue">
+        </div>
       </div>
     </div>
 
@@ -639,7 +659,9 @@
       </div>
       <div class="tl-dot-col"><div class="entry-dot"></div></div>
       <div class="tl-right">
-        <div class="tl-photo"> <img src="linkedin_image.png"> </div>
+        <div class="tl-photo photo-card">
+          <img src="linkedin_image.png" class="fill-photo" alt="Gonzalo Carpio-Rivero">
+        </div>
       </div>
     </div>
 
